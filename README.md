@@ -2,9 +2,9 @@
 
 Just some very basic fps mouvements and mechanics. 
 
-There is some other stuff that have to be done in this project:
--Enemy health system.
--Weapons selection.
--Camera Shake.
+#Changes
 
-It's just a basic thing don't expect to much from it :)
+*Slow motion with post processing effect.
+*Weapon pickup (Still not working properly)
+*Navigation System(Nothing fancy to mention here)
+
