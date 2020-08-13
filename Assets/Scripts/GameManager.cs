@@ -4,15 +4,26 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public FpsControll player_Pos;
+    Vector3 player_FirstPos;
+
+    private void Start()
     {
-        
+        player_Pos.transform.position = transform.position;
+        player_FirstPos = player_Pos.transform.position;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if (player_Pos.reset)
+            StartCoroutine(Respawn());
     }
+
+    IEnumerator Respawn()
+    {
+        yield return new WaitForSeconds(0.1f);
+        player_Pos.transform.position = player_FirstPos;
+    }
+
+
 }

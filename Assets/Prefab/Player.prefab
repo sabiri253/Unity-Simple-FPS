@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 5202581088896032089}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -111,12 +111,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7677cf391cbb0054988f9c3a70c168f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  walk_Sound: {fileID: 0}
   damageValue: 0
   crossHair: {fileID: 0}
   speed: 4
   jump_Force: 7
   mouse_Sensetivity: 4
   gravity: 9
+  reset: 0
 --- !u!143 &5202581088896032084
 CharacterController:
   m_ObjectHideFlags: 0
@@ -148,7 +150,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weapons: []
+  pickSound: {fileID: 0}
   shoot: {fileID: 0}
+  gun_: {fileID: 0}
   gunHold: {fileID: 5202581090387239447}
   gun: {fileID: 0}
   isPicked: 0
@@ -313,6 +317,7 @@ MonoBehaviour:
   bullet: {fileID: 2980129965379073192, guid: 018ad4841cd975448a0c94ce20dabcd2, type: 3}
   start: {fileID: 0}
   bulletCount: 50
+  isShooting: 0
   Ammo: {fileID: 0}
   reloadText: {fileID: 0}
   time_Between_Shots: 1

@@ -6,16 +6,21 @@ using UnityEngine.UI;
 public class Shooting : MonoBehaviour
 {
     WeaponPickUp pickED;
-    Animator gun;
+
+    public AudioSource shoot;
 
     public GameObject bullet;
+    public GameObject shootSound;
     public GameObject start;
+    public GameObject bloodEffect;
 
-    public int bulletCount = 20;
+    public int currCount;
 
     public bool isShooting = false;
+    public bool enemyHitted = false;
 
-    public Text Ammo;
+    public Weapon weapon;
+
     public Text reloadText; 
 
     public float time_Between_Shots = 1;
@@ -23,44 +28,68 @@ public class Shooting : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Ammo.text = "Bullet: " + bulletCount;
-        Ammo.gameObject.SetActive(false);
+        weapon = GetComponent<Weapon>();
+        currCount = weapon.bulletCount;
+        weapon.Ammo.text += currCount;
+        weapon.Ammo.gameObject.SetActive(false);
         reloadText.gameObject.SetActive(false);
-        gun = GetComponent<Animator>();
         time_Between_Shots = 0;
         pickED = FindObjectOfType<WeaponPickUp>();
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        Shoot();
+    void Update(){
+        if (weapon.isHolded)
+            Shoot();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            FindObjectOfType<Enemy>().isRagdoll(true);
+            FindObjectOfType<Enemy>().RagdollActiv = true;
+        }
     }
-    void Shoot()
-    {
-        isShooting = false;
-        if (bulletCount > 0){
-            gun.SetBool("empty", false);
+
+    public void Shoot(){
+        isShooting = false;        
+        if (Input.GetKeyDown(KeyCode.Mouse0) && weapon.isPicked && time_Between_Shots <= 0 && currCount > 0 ){
+            isShooting = true;
+            shoot.Play();
+            ////RAYCAST SHOOT !!!!!!
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))
+            {
+                Debug.Log(hit.transform.name);
+                if (hit.rigidbody != null)
+                {
+                    Instantiate(bloodEffect, hit.point, Quaternion.identity);
+                    hit.rigidbody.AddForce(-hit.normal * 1000);
+                    if (hit.transform.tag == "Enemy")
+                    {
+                     hit.transform.GetComponent<Enemy>().isRagdoll(true);
+
+                    }
+                }
+            }
+            Instantiate(bullet, start.transform.position, start.transform.rotation);
+            Instantiate(shootSound, start.transform.position, start.transform.rotation);
+            time_Between_Shots = 1.1f;
+            currCount--;
+            weapon.Ammo.text += currCount;
+        }         
+        if (currCount > 0){
             reloadText.gameObject.SetActive(false);
         }
-        if (bulletCount <= 0){
-            gun.SetBool("empty", true);
-            if (pickED.isPicked){
+        if (currCount <= 0){
+            if (weapon.isPicked && (currCount <= 0 || currCount < weapon.bulletCount)){
                 reloadText.gameObject.SetActive(true);
-                if (Input.GetKeyDown(KeyCode.R))
-                    bulletCount = 20;
+                if (Input.GetKeyDown(KeyCode.R) && currCount < weapon.bulletCount){
+                    currCount = weapon.firstBulletCount;
+                    pickED.pickSound.time = 1.2f;
+                    pickED.pickSound.Play();
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.Mouse0) && pickED.isPicked && time_Between_Shots <= 0 && bulletCount > 0 ){
-            isShooting = true;
-            gun.SetTrigger("shoot");
-            Instantiate(bullet, start.transform.position, start.transform.rotation);
-            time_Between_Shots = 1.1f;
-            bulletCount--;
-        }
-        Ammo.text = "Bullet: " + bulletCount;
         if (time_Between_Shots <= 0)
             time_Between_Shots = 0;
-        time_Between_Shots -= 0.06f;
+        time_Between_Shots -= 0.09f;
     }
 }

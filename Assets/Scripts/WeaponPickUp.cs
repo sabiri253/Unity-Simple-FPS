@@ -2,51 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponPickUp : MonoBehaviour{
+public class WeaponPickUp : MonoBehaviour {
     public List<GameObject> weapons;
+    public AudioSource pickSound;
 
-    public Shooting shoot;
+    public Weapon weapon_;
+
     public GameObject gunHold;
-    public GameObject gun;
 
-    public bool isPicked = false;
+    public int SelectedWeapon = 0;
+
+    public bool picked = false;
+
+   private void Start(){
+        weapons = new List<GameObject>();
+    }
 
     // Update is called once per frame
-    void Update()   {
-        GunPicked();
-        GunDropped();
+    public void Update() {
+        SelectWeapon();
+        weapon_ = FindObjectOfType<Weapon>();
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Gun")
+    //WEAPON SWITCH
+    public void SelectWeapon(){
+        int i = 0;
+        if (Input.GetAxis("Mouse ScrollWheel") > 0){
+            if (SelectedWeapon >= weapons.Count - 1)
+                SelectedWeapon = weapons.Count - 1;
+            else
+              SelectedWeapon++;
+        }
+        if (Input.GetAxis("Mouse ScrollWheel") < 0){
+            if (SelectedWeapon <= 0)
+                SelectedWeapon = 0;
+            else
+                SelectedWeapon--;
+        }            
+        foreach(GameObject weapon in weapons)
         {
-            isPicked = true;           
+            if (i == SelectedWeapon)
+                weapon.gameObject.SetActive(true);
+            else{
+                weapon.gameObject.SetActive(false);
+            }
+            i++;
         }
+    }
+    //REMOVE THE SELECTED WEAPON FROM THE LIST
+    public void EmptyListFromGun(GameObject weapon_To_Remove){
+       if (weapon_.isDropped){
+           weapons.Remove(weapon_To_Remove);
+            weapon_.isDropped = false;
+        }
+    }
 
-    }
-    void GunPicked(){
-        if(isPicked){
-            GunHolded(gun);
-            shoot.Ammo.gameObject.SetActive(true);
-        }
-    }
-   void GunHolded(GameObject weapon){
+    //PICK THE WEAPON
+   public void GunPicked(GameObject weapon){
         weapon.transform.parent = gunHold.transform;
         weapon.transform.position = gunHold.transform.position;
-        weapon.transform.eulerAngles = gunHold.transform.eulerAngles;           
+        weapon.transform.eulerAngles = gunHold.transform.eulerAngles;
     }
-    void GunDropped(){
-        if (Input.GetKey(KeyCode.P) && isPicked)
-        {
-            gun.transform.parent = null;
+    //DROP THE WEAPON
+    public void GunDropped(GameObject weapon){
+        if (Input.GetKey(KeyCode.P) && weapon_.isPicked && weapon_.isHolded){
+            weapon.transform.parent = null;
             Vector3 resetAngle = new Vector3(0,0,0);
             Vector3 offset = new Vector3(0.4f,0,0.4f);
-            gun.transform.eulerAngles = resetAngle;
-            gun.transform.position += offset;            
-            shoot.Ammo.gameObject.SetActive(false);
-
-            isPicked = false;
+            weapon.transform.eulerAngles = resetAngle;
+            weapon.transform.position += offset;            
+            weapon_.Ammo.gameObject.SetActive(false);
+            weapon_.isPicked  = false;
+            weapon_.isHolded  = false;
+            weapon_.isDropped = true;
         }        
     }
 }

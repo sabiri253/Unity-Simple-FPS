@@ -8,6 +8,7 @@ TagManager:
   - Box
   - Enemy
   - Bullet
+  - MachineGun
   layers:
   - Default
   - TransparentFX

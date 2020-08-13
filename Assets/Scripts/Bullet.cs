@@ -29,7 +29,6 @@ public class Bullet : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-
     void OnCollisionExit(Collision collision){
         if (collision.gameObject.CompareTag("Enemy"))
         {

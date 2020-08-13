@@ -6,10 +6,15 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class FpsControll : MonoBehaviour
 {
+    [Header("Animators")]
     Animator player;
-    public int damageValue;
-    public GameObject crossHair;
+    [Header("AudioClips")]
+    AudioSource walk_Sound;
+    AudioSource run_Sound;
 
+    public int damageValue;
+
+    [Header("Float values")]
     public float speed = 10f;
     public float jump_Force = 7f;
     public float mouse_Sensetivity = 4f;
@@ -19,7 +24,10 @@ public class FpsControll : MonoBehaviour
     CharacterController char_Controll;
     WeaponPickUp pick;
 
+    [Header("Boolean Value")]
     bool showCrossHair = false;
+    public bool isFacingNextGround = false;
+    public bool reset = false;
 
     Camera cam;
 
@@ -47,9 +55,20 @@ public class FpsControll : MonoBehaviour
         CameraRotation();
         PlayerMove();
         Crouch();
-        CrossHairDisplay();
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Respawn"))
+            reset = true;
+    }
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Respawn"))
+            reset = false;
+    }
+
+    //MOVE THE PLAYER
     void PlayerMove(){
         float move_Forward = Input.GetAxis("Vertical");
         float move_right = Input.GetAxis("Horizontal");
@@ -58,19 +77,20 @@ public class FpsControll : MonoBehaviour
         {
             velocity.y = jump_Force;
         }
-        if (move_right > 0 || move_right < 0 || move_Forward > 0 || move_Forward < 0)
-        {
-            if(char_Controll.isGrounded)
-            {
-              player.SetBool("Walking",true);
-              if (Input.GetKey(KeyCode.LeftShift))
-                 player.SetBool("Running", true);
-              if (Input.GetKeyUp(KeyCode.LeftShift))
-                 player.SetBool("Running", false);
+
+        if (move_right > 0 || move_right < 0 || move_Forward > 0 || move_Forward < 0){
+            if (char_Controll.isGrounded){
+                player.SetBool("Walking", true);
+                if (Input.GetKey(KeyCode.LeftShift))
+                    player.SetBool("Running", true);
+                if (Input.GetKeyUp(KeyCode.LeftShift))
+                    player.SetBool("Running", false);
             }
         }
-        else
+        else {
             player.SetBool("Walking", false);
+            player.SetBool("Running", false);
+        }
 
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)){
             speed = 10;
@@ -84,6 +104,8 @@ public class FpsControll : MonoBehaviour
         Vector3 left = transform.right * move_right * speed;
         char_Controll.Move((forward + left) * Time.deltaTime);
     }    
+
+    //ROTATE CAMERA
     void CameraRotation()
     {
         float x = Input.GetAxis("Mouse X") * mouse_Sensetivity;
@@ -94,24 +116,10 @@ public class FpsControll : MonoBehaviour
         transform.Rotate(Vector3.up * x);
     }
 
-    void CrossHairDisplay()
-    {
-        if (pick.isPicked)
-        {
-            showCrossHair = true;
-        }
-        else showCrossHair = false;
-
-        if (showCrossHair) crossHair.SetActive(true);
-        else  crossHair.SetActive(false);
-    }
-
-    void Crouch()
-    {
+    void Crouch(){
         if (Input.GetKey(KeyCode.C))
             player.SetBool("Crouch", true);
         if (Input.GetKeyUp(KeyCode.C))
-           player.SetBool("Crouch", false);    
-            
+           player.SetBool("Crouch", false);                
     }
 }
